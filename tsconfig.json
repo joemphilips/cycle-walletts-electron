@@ -27,7 +27,7 @@
     "outDir": "dist"
   },
   "files": [
-    "app/index.tsx"
+    "app/index.ts"
   ],
   "include": [
     "app/**/*.ts",
