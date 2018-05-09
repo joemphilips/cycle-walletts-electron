@@ -4,6 +4,7 @@ import { button, div, h2, textarea, VNode, DOMSource } from "@cycle/dom";
 import { StateSource } from "cycle-onionify";
 
 import { BaseSources, BaseSinks } from "../interfaces";
+import { HistoryAction } from "cyclic-router";
 
 // Types
 export interface Sources extends BaseSources {
@@ -44,7 +45,7 @@ export function Speaker({ DOM, onion }: Sources): Sinks {
     DOM: view(onion.state$),
     speech: speech(action$, onion.state$),
     onion: onionFn(action$),
-    router: router(action$)
+    router: router(action$) as Stream<HistoryAction>
   };
 }
 

@@ -3,6 +3,7 @@ import { button, div, h2, span, VNode, DOMSource } from "@cycle/dom";
 import { StateSource } from "cycle-onionify";
 
 import { BaseSources, BaseSinks } from "../interfaces";
+import { HistoryAction } from "cyclic-router";
 
 // Types
 export interface Sources extends BaseSources {
@@ -27,7 +28,7 @@ export function Counter({ DOM, onion }: Sources): Sinks {
 
   const routes$ = DOM.select('[data-action="navigate"]')
     .events("click")
-    .mapTo("/p2");
+    .mapTo("/p2") as Stream<HistoryAction>;
 
   return {
     DOM: vdom$,
