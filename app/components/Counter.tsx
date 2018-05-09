@@ -1,8 +1,8 @@
-import xs, { Stream } from 'xstream';
-import { VNode, DOMSource } from '@cycle/dom';
-import { StateSource } from 'cycle-onionify';
+import xs, { Stream } from "xstream";
+import { button, div, h2, span, VNode, DOMSource } from "@cycle/dom";
+import { StateSource } from "cycle-onionify";
 
-import { BaseSources, BaseSinks } from '../interfaces';
+import { BaseSources, BaseSinks } from "../interfaces";
 
 // Types
 export interface Sources extends BaseSources {
@@ -26,8 +26,8 @@ export function Counter({ DOM, onion }: Sources): Sinks {
   const vdom$: Stream<VNode> = view(onion.state$);
 
   const routes$ = DOM.select('[data-action="navigate"]')
-    .events('click')
-    .mapTo('/p2');
+    .events("click")
+    .mapTo("/p2");
 
   return {
     DOM: vdom$,
@@ -41,31 +41,30 @@ function intent(DOM: DOMSource): Stream<Reducer> {
     prevState => (prevState === undefined ? defaultState : prevState)
   );
 
-  const add$: Stream<Reducer> = DOM.select('.add')
-    .events('click')
+  const add$: Stream<Reducer> = DOM.select(".add")
+    .events("click")
     .mapTo<Reducer>(state => ({ ...state, count: state.count + 1 }));
 
-  const subtract$: Stream<Reducer> = DOM.select('.subtract')
-    .events('click')
+  const subtract$: Stream<Reducer> = DOM.select(".subtract")
+    .events("click")
     .mapTo<Reducer>(state => ({ ...state, count: state.count - 1 }));
 
   return xs.merge(init$, add$, subtract$);
 }
 
 function view(state$: Stream<State>): Stream<VNode> {
-  return state$.map(({ count }) => (
-    <div>
-      <h2>My Awesome Cycle.js app - Page 1</h2>
-      <span>{'Counter: ' + count}</span>
-      <button type="button" className="add">
-        Increase
-      </button>
-      <button type="button" className="subtract">
-        Decrease
-      </button>
-      <button type="button" data-action="navigate">
-        Page 2
-      </button>
-    </div>
-  ));
+  return state$.map(({ count }) =>
+    div([
+      h2("My Awesome Cycle.js app - Page 1"),
+      span("Counter: " + count),
+      button({ props: { className: "add" } }, "Increase"),
+      button({ props: { className: "subtract" } }, "Decrease"),
+      button(
+        {
+          attrs: { "data-action": "navigate" }
+        },
+        "Page 2"
+      )
+    ])
+  );
 }
