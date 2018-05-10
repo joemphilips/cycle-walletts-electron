@@ -1,4 +1,4 @@
-import { DOMSource, li, VNode, span, button } from "@cycle/dom";
+import { DOMSource, li, VNode, span, input } from "@cycle/dom";
 import isolate from "@cycle/isolate";
 import { StateSource } from "cycle-onionify";
 import xs, { Stream } from "xstream";
@@ -50,30 +50,18 @@ export const model = (dom$: DOMSource): Stream<Reducer> => {
       ...prev,
       isChecked: !prev.isChecked // !(ev.target as HTMLInputElement).checked
     }));
-  const trimReducer$ = dom$
-    .select(".trim")
-    .events("click")
-    .mapTo(function trimReducer(prevState: State): State {
-      return {
-        ...prevState,
-        onelineExplanation: prevState.onelineExplanation.slice(0, -1)
-      };
-    });
 
-  return xs.merge(init$, check$, trimReducer$);
+  return xs.merge(init$, check$);
 };
 
 const view = (state$: Stream<State>): Stream<VNode> => {
   return state$.map(s =>
-    /*    
-    input(".input-checkbox", {
-          attrs: { type: "checkbox", value: s.onelineExplanation },
-          props: { checked: s.isChecked }
-        })*/
     li(`.tutorial-card`, [
-      span(".conent", "hoge"),
-      span(".trim", "(trim)"),
-      button(".checkbox", { props: { checked: s.isChecked } }, "checkbox"),
+      input(
+        ".checkbox",
+        { attrs: { type: "checkbox" }, props: { checked: s.isChecked } },
+        "checkbox"
+      ),
       span(".oneline-explanation", s.onelineExplanation)
     ])
   );
