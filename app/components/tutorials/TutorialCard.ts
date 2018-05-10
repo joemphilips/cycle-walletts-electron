@@ -16,6 +16,10 @@ export interface State {
   readonly isChecked: boolean;
 }
 
+type Action = {
+  check$: Stream<null>;
+};
+
 export const defaultState: State = {
   id: 0,
   onelineExplanation: "this is default tutorial",
@@ -24,12 +28,9 @@ export const defaultState: State = {
 
 export type Reducer = (prev: State) => State;
 
-const tutorialCard: Component<Sources, Sinks> = ({
-  DOM,
-  onion
-}: Sources): Sinks => {
-  const state$ = onion.state$;
-  const reducer$ = model(DOM);
+const tutorialCard: Component<Sources, Sinks> = (sources$: Sources): Sinks => {
+  const state$ = sources$.onion.state$;
+  const reducer$ = model(intent(sources$.DOM));
   return {
     DOM: view(state$),
     onion: reducer$
@@ -38,18 +39,23 @@ const tutorialCard: Component<Sources, Sinks> = ({
 
 export const main = (sources: Sources): Sinks => isolate(tutorialCard)(sources);
 
-export const model = (dom$: DOMSource): Stream<Reducer> => {
+const intent = (dom$: DOMSource): Action => {
+  return {
+    check$: dom$
+      .select("checkbox")
+      .events("click")
+      .mapTo(null)
+  };
+};
+export const model = (actions: Action): Stream<Reducer> => {
   const init$ = xs.of<Reducer>(
     prevState => (typeof prevState === undefined ? defaultState : prevState)
   );
 
-  const check$ = dom$
-    .select(".checkbox")
-    .events("click")
-    .map(ev => (prev: State): State => ({
-      ...prev,
-      isChecked: !prev.isChecked // !(ev.target as HTMLInputElement).checked
-    }));
+  const check$ = actions.check$.map(ev => (prev: State): State => ({
+    ...prev,
+    isChecked: !prev.isChecked // !(ev.target as HTMLInputElement).checked
+  }));
 
   return xs.merge(init$, check$);
 };
