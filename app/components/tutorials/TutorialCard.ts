@@ -39,6 +39,10 @@ const tutorialCard: Component<Sources, Sinks> = ({
 export const main = (sources: Sources): Sinks => isolate(tutorialCard)(sources);
 
 export const model = (dom$: DOMSource): Stream<Reducer> => {
+  const init$ = xs.of<Reducer>(
+    prevState => (typeof prevState === undefined ? defaultState : prevState)
+  );
+
   const check$ = dom$
     .select(".checkbox")
     .events("click")
@@ -56,7 +60,7 @@ export const model = (dom$: DOMSource): Stream<Reducer> => {
       };
     });
 
-  return xs.merge(check$, trimReducer$);
+  return xs.merge(init$, check$, trimReducer$);
 };
 
 const view = (state$: Stream<State>): Stream<VNode> => {
